@@ -1,6 +1,6 @@
 import React from 'react'
 import type { Metadata } from "next";
-import UserProfile from '@/components/UserProfile';
+import UserProfile from '@/app/components/UserProfile';
 
 export const metadata: Metadata = {
   title: "Login page",

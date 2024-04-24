@@ -1,7 +1,7 @@
 "use client"
 import React from 'react'
 import { useState, useEffect } from "react";
-import { supabase } from "../utils/supabase/client";
+import { supabase } from "../../utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import LoginForm from "./LoginForm";
 
