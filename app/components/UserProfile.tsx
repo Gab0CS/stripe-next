@@ -1,58 +1,61 @@
-"use client"
-import React from 'react'
+"use client";
+
 import { useState, useEffect } from "react";
 import { supabase } from "../../utils/supabase/client";
 import { User } from "@supabase/supabase-js";
 import LoginForm from "./LoginForm";
 
+export default function UserProfile() {
+  const [user, setUser] = useState<User | null>(null);
+  const [stripeCustomer, setStripeCustomer] = useState<any>(null);
 
-const UserProfile = () => {
-    const [user, setUser] = useState<User | null>(null);
-    const [stripeCustomer, setStripeCustomer] = useState<any>(null);
-    useEffect(() => {
-        const fetchUser = async () =>{
-            const {data: { user } } = await supabase.auth.getUser();
-            setUser(user)
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      setUser(user);
 
-            if (user) {
-                const { data: stripeCustomerData, error } = await supabase
-                .from("stripe_customers")
-                .select("*")
-                .eq("user_id", user.id)
-                .single();
-                if (error) {
-                    console.log("No stripe customer data found",);
-                } else {
-                setStripeCustomer(stripeCustomerData);
-                }
-            }
-        };
+      if (user) {
+        const { data: stripeCustomerData, error } = await supabase
+          .from("stripe_customers")
+          .select("*")
+          .eq("user_id", user.id)
+          .single();
 
-        fetchUser();
-        //if user signs-out or signs-in
-        const { data: authListener } = supabase.auth.onAuthStateChange(
-            (event, session) => {
-                if(event === "SIGNED_IN") {
-                    if(session){
-                        setUser(session.user);
-                    }
-                } else if(event === "SIGNED_OUT"){
-                    setUser(null);
-                    setStripeCustomer(null)
-                }
-            }
-        );
-        return () => {
-            authListener.subscription.unsubscribe();
-        };
-    }, []);
+        if (error) {
+          console.log("No stripe customer data found",);
+        } else {
+          setStripeCustomer(stripeCustomerData);
+        }
+      }
+    };
 
-    const handleLogout = async () => {
-        await supabase.auth.signOut();
-    }
+    fetchUser();
 
-    return (
-        <div>
+    const { data: authListener } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === "SIGNED_IN") {
+          if (session) {
+            setUser(session.user);
+          }
+        } else if (event === "SIGNED_OUT") {
+          setUser(null);
+          setStripeCustomer(null);
+        }
+      }
+    );
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+  };
+
+  return (
+    <div>
       <h1>User Data</h1>
       {user ? (
         <>
@@ -94,8 +97,5 @@ const UserProfile = () => {
       )}
       
     </div>
-    );
+  );
 }
-
-
-export default UserProfile

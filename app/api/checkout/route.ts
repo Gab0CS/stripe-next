@@ -1,5 +1,5 @@
-import { NextResponse } from "next/server";
-import { stripe } from "@/utils/stripe/stripe";
+import { NextResponse } from 'next/server';
+import { stripe } from '@/utils/stripe/stripe';
 
 export async function POST(request: Request) {
     try {
@@ -8,7 +8,6 @@ export async function POST(request: Request) {
         const session = await stripe.checkout.sessions.create({
             metadata: {
                 user_id: userId,
-
             },
             customer_email: email,
             payment_method_types: ['card'],
@@ -16,21 +15,17 @@ export async function POST(request: Request) {
                 {
                     // base subscription
                     price: priceId,
-                },
-                {
-                    // one-time setup fee
-                    price: 'price_1OtHdOBF7AptWZlcPmLotZgW',
                     quantity: 1,
                 },
             ],
             mode: 'subscription',
             success_url: `${request.headers.get('origin')}/success`,
-            cancel_url: `${request.headers.get('origin')}/cancel`
-        })
-        
-        return NextResponse.json({ id: session.id })
+            cancel_url: `${request.headers.get('origin')}/cancel`,
+        });
+
+        return NextResponse.json({ id: session.id });
     } catch (error: any) {
-        console.error(error)
-        return NextResponse.json({ message: error.message}, { status: 500 })
+        console.error(error);
+        return NextResponse.json({ message: error.message }, { status: 500 });
     }
 }
